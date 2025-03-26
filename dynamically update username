@@ -1,0 +1,6 @@
+// Display user's name from Firebase for example my name Otito will be displayed if im signed in
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            String displayName = user.getDisplayName();
+            toolBaruserName.setText(displayName != null ? displayName : "User");
+        }
