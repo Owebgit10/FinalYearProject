@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/navigation_mindset"
+        android:icon="@drawable/ic_mindset"
+        android:title="@string/title_mindset"/>
+    <item android:id="@+id/navigation_events"
+        android:icon="@drawable/ic_events"
+        android:title="@string/title_events"/>
+    <item android:id="@+id/navigation_quest_goal_pilot"
+        android:icon="@drawable/ic_quest"
+        android:title="@string/title_quest_goal_pilot"/>
+    <item android:id="@+id/navigation_communities"
+        android:icon="@drawable/ic_communities"
+        android:title="@string/title_communities"/>
+</menu>
+
