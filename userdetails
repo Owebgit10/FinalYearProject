@@ -1,0 +1,21 @@
+private void loadUserDetails() {
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String firstName = dataSnapshot.child("firstName").getValue(String.class);
+                String lastName = dataSnapshot.child("lastName").getValue(String.class);
+                String phone = dataSnapshot.child("phone").getValue(String.class);
+
+                firstNameInput.setText(firstName);
+                lastNameInput.setText(lastName);
+                phoneInput.setText(phone);
+                usernameDisplay.setText(currentUser.getDisplayName());
+                emailDisplay.setText(currentUser.getEmail());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(EditProfileActivity.this, "Failed to load user details", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
