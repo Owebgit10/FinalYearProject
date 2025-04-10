@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Non-scrolling area for the search bar and regular button -->
+    <LinearLayout
+        android:id="@+id/searchBarAndButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        android:layout_alignParentTop="true">
+
+        <EditText
+            android:id="@+id/searchInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/hint_search_events"
+            android:textColorHint="@color/silver"
+            android:background="@drawable/rounded_edittext"
+            android:drawableStart="@drawable/ic_search"
+            android:drawableEnd="@drawable/ic_clear"
+            android:padding="10dp"
+            android:drawablePadding="10dp"/>
+
+
+        <Space
+            android:layout_width="16dp"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/btnNavigateToCreateEvent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:textSize="12sp"
+            android:text="@string/create_event_here"
+            android:backgroundTint="@color/gold"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <!-- Scrollable content should go here, below the fixed elements -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/eventList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/searchBarAndButton"
+        android:layout_marginTop="8dp" />
+
+</RelativeLayout>
+
+
+
+
+
+
+
+
+
+
+
+
