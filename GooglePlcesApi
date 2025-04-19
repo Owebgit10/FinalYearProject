@@ -1,0 +1,25 @@
+private double selectedLat = 0.0;
+    private double selectedLng = 0.0;
+
+    private final ActivityResultLauncher<Intent> autocompleteLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Place place = Autocomplete.getPlaceFromIntent(result.getData());
+                    eventLocationInput.setText(place.getAddress());
+
+                    LatLng latLng = place.getLatLng();
+                    if (latLng != null) {
+                        selectedLat = latLng.latitude;
+                        selectedLng = latLng.longitude;
+                        Log.d("EventCreation", "Lat: " + selectedLat + ", Lng: " + selectedLng);
+                    }
+                } else if (result.getResultCode() == AutocompleteActivity.RESULT_ERROR) {
+                    if (result.getData() != null) {
+                        Status status = Autocomplete.getStatusFromIntent(result.getData());
+                        Log.e("EventCreation", "Autocomplete error: " + status.getStatusMessage());
+                    } else {
+                        Log.e("EventCreation", "Autocomplete error: Intent data was null.");
+                    }
+                }
+
+            });
