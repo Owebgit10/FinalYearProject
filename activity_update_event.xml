@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorPrimary">
+
+    <!-- ✅ Toolbar for Update Event -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarUpdatedEventDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:title="Update Event"
+        app:navigationIcon="@drawable/ic_back_arrow"
+        app:titleTextColor="@android:color/white" />
+
+    <!-- ✅ Scrollable Form Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Banner -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Update Event"
+                android:gravity="center"
+                android:textSize="24sp"
+                android:textStyle="bold|italic"
+                android:textColor="@android:color/white"
+                android:padding="20dp" />
+
+            <!-- Uploaded Image -->
+            <ImageView
+                android:id="@+id/eventImagePreview"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/rounded_edittext"
+                android:src="@drawable/ic_upload_placeholder"
+                android:contentDescription="@string/event_poster_preview" />
+
+            <!-- Upload/Remove Image -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <Button
+                    android:id="@+id/uploadImageButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/upload_image_optional"
+                    android:textColor="@android:color/black"
+                    android:backgroundTint="@color/gold"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/removeImageButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/remove_image"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="@color/gray" />
+            </LinearLayout>
+
+            <!-- Event Name -->
+            <EditText
+                android:id="@+id/eventNameInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_event_name"
+                android:inputType="textCapWords"
+                android:padding="12dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/rounded_edittext"
+                android:textColorHint="@color/gray"
+                android:textColor="@android:color/black" />
+
+            <!-- Location -->
+            <EditText
+                android:id="@+id/eventLocationInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_location"
+                android:inputType="text"
+                android:padding="12dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/rounded_edittext"
+                android:textColorHint="@color/gray"
+                android:textColor="@android:color/black" />
+
+            <!-- Date -->
+            <EditText
+                android:id="@+id/eventDateInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/select_date"
+                android:focusable="false"
+                android:drawableRight="@drawable/ic_calendar"
+                android:padding="12dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/rounded_edittext"
+                android:textColorHint="@color/gray"
+                android:textColor="@android:color/black" />
+
+            <!-- Time -->
+            <EditText
+                android:id="@+id/eventTimeInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/select_time"
+                android:focusable="false"
+                android:drawableRight="@drawable/ic_clock"
+                android:padding="12dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/rounded_edittext"
+                android:textColorHint="@color/gray"
+                android:textColor="@android:color/black" />
+
+            <!-- Spaces -->
+            <EditText
+                android:id="@+id/eventSpacesInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/available_spaces"
+                android:inputType="number"
+                android:padding="12dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/rounded_edittext"
+                android:textColorHint="@color/gray"
+                android:textColor="@android:color/black" />
+
+            <!-- Description -->
+            <EditText
+                android:id="@+id/eventDescriptionInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_event_description"
+                android:inputType="textMultiLine"
+                android:padding="12dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/rounded_edittext"
+                android:textColorHint="@color/gray"
+                android:textColor="@android:color/black" />
+
+            <!-- Category -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/select_category_label"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="4dp"
+                android:textColor="@android:color/black" />
+
+            <Spinner
+                android:id="@+id/categorySpinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_edittext" />
+
+            <EditText
+                android:id="@+id/otherCategoryInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_enter_your_category"
+                android:layout_marginTop="12dp"
+                android:visibility="gone"
+                android:background="@drawable/rounded_edittext"
+                android:textColorHint="@color/gray"
+                android:textColor="@android:color/black"
+                android:inputType="textCapWords" />
+
+            <!-- Tags -->
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/tagInputContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_edittext"
+                android:padding="8dp"
+                app:flexWrap="wrap"
+                app:alignItems="center"
+                app:justifyContent="flex_start">
+
+                <EditText
+                    android:id="@+id/tagInput"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/add_tags"
+                    android:background="@android:color/transparent"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@color/gray"
+                    android:maxLines="1"
+                    android:padding="8dp"
+                    android:inputType="text" />
+            </com.google.android.flexbox.FlexboxLayout>
+
+            <!-- Bottom Buttons -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="16dp"
+                android:padding="8dp">
+
+                <Button
+                    android:id="@+id/btnConfirmUpdate"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Confirm Changes"
+                    android:backgroundTint="@color/gold"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/btnCancelEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Cancel Edit"
+                    android:backgroundTint="@color/gray"
+                    android:textColor="@android:color/white"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- ✅ Loading Spinner (overlays while saving) -->
+    <ProgressBar
+        android:id="@+id/loadingSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminateTint="@color/gold"
+        android:visibility="gone" />
+
+
+</LinearLayout>
+
+
+
