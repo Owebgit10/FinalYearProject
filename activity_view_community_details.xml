@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/communityDetailsToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimary"
+        android:title="Join Community"
+        android:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/ic_back_arrow" />
+
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Community Image -->
+            <ImageView
+                android:id="@+id/imageCommunityBanner"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/rounded_edittext"
+                android:src="@drawable/ic_upload_placeholder"
+                android:contentDescription="Community Banner" />
+
+            <!-- Name -->
+            <TextView
+                android:id="@+id/textCommunityName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Community Name"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="16dp" />
+
+            <!-- About Header -->
+            <TextView
+                android:id="@+id/aboutHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="About This Community"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/silver"
+                android:layout_marginTop="16dp" />
+
+            <!-- Description -->
+            <TextView
+                android:id="@+id/textCommunityDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Community description goes here"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:layout_marginTop="12dp" />
+
+            <!-- Spacer -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="48dp" />
+
+            <!-- Rules Header -->
+            <TextView
+                android:id="@+id/rulesHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Community Rules"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/silver"
+                android:layout_marginTop="20dp"
+                android:visibility="gone" />
+
+            <!-- Rules List -->
+            <LinearLayout
+                android:id="@+id/rulesContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp" />
+
+            <!-- Action Button -->
+            <Button
+                android:id="@+id/btnJoinOrChat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Join Community"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@color/gold"
+                android:layout_marginTop="24dp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
+

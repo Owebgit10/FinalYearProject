@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Toolbar -->
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbarCreateCommunity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:title="Create Community"
+            android:titleTextColor="@android:color/white"
+            android:backgroundTint="@color/colorPrimary"
+            android:navigationIcon="@drawable/ic_back_arrow" />
+
+        <!-- Image Preview -->
+        <ImageView
+            android:id="@+id/communityImagePreview"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:scaleType="centerCrop"
+            android:background="@drawable/rounded_edittext"
+            android:src="@drawable/ic_upload_placeholder"
+            android:contentDescription="Community Image" />
+
+        <!-- Upload & Remove Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <Button
+                android:id="@+id/uploadCommunityImageButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Upload Image (Optional)"
+                android:backgroundTint="@color/gold"
+                android:textColor="@android:color/black"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/removeCommunityImageButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Remove Image"
+                android:backgroundTint="@color/gray"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+        <!-- Community Name -->
+        <EditText
+            android:id="@+id/communityNameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Community Name"
+            android:inputType="textCapWords"
+            android:padding="12dp"
+            android:background="@drawable/rounded_edittext"
+            android:textColorHint="@color/silver"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="12dp" />
+
+        <!-- Description -->
+        <EditText
+            android:id="@+id/communityDescriptionInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Community Description"
+            android:inputType="textMultiLine"
+            android:padding="12dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/rounded_edittext"
+            android:textColorHint="@color/silver"
+            android:textColor="@android:color/black" />
+
+        <!-- Tags -->
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/communityTagInputContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_edittext"
+            android:padding="8dp"
+            app:flexWrap="wrap"
+            app:alignItems="center"
+            app:justifyContent="flex_start"
+            android:layout_marginTop="16dp">
+
+            <EditText
+                android:id="@+id/communityTagInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Add tags"
+                android:background="@android:color/transparent"
+                android:textColor="@android:color/black"
+                android:textColorHint="@color/silver"
+                android:maxLines="1"
+                android:padding="8dp"
+                android:inputType="text" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <!-- Community Rules -->
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/communityRuleInputContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/rounded_edittext"
+            android:padding="8dp"
+            app:alignItems="center"
+            app:flexWrap="wrap"
+            app:justifyContent="flex_start">
+
+            <EditText
+                android:id="@+id/communityRuleInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Add Community rules (optional)"
+                android:background="@android:color/transparent"
+                android:textColorHint="@color/silver"
+                android:textColor="@android:color/black"
+                android:maxLines="1"
+                android:padding="8dp"
+                android:inputType="text" />
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="24dp"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btnCreateCommunity"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Create Community"
+                android:backgroundTint="@color/gold"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/btnCancelCommunityCreation"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cancel Creation"
+                android:backgroundTint="@color/gray"
+                android:textColor="@android:color/white"
+                android:layout_marginStart="12dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
+

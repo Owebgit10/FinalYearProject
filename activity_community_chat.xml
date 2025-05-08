@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorPrimary">
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/chatToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:title="Community Chat"
+        android:titleTextColor="@android:color/white"
+        android:backgroundTint="@color/colorPrimaryDark"
+        app:navigationIcon="@drawable/ic_back_arrow" />
+
+    <!-- Messages List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewMessages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        android:clipToPadding="false" />
+
+    <!-- Image Preview (hidden by default) -->
+    <LinearLayout
+        android:id="@+id/imagePreviewContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:gravity="center_vertical"
+        android:background="@color/colorPrimaryDark">
+
+        <ImageView
+            android:id="@+id/imagePreview"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/bg_preview_border"
+            android:contentDescription="Image Preview" />
+
+        <ImageButton
+            android:id="@+id/btnRemoveImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_clear"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Remove Image"
+            android:padding="10dp"
+            app:tint="@android:color/white" />
+    </LinearLayout>
+
+    <!-- Input Area -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="@color/colorPrimaryDark"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/editMessageInput"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Type a message"
+            android:background="@drawable/rounded_edittext"
+            android:padding="10dp"
+            android:textColor="@android:color/white"
+            android:textColorHint="@color/silver" />
+
+        <ImageButton
+            android:id="@+id/btnSendImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_upload_image"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Send Image"
+            android:padding="10dp"
+            app:tint="@android:color/white" />
+
+        <ImageButton
+            android:id="@+id/btnSendMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_send"
+            android:background="?selectableItemBackgroundBorderless"
+            android:contentDescription="Send Message"
+            android:padding="10dp"
+            app:tint="@android:color/white" />
+    </LinearLayout>
+</LinearLayout>
+
+
+
+
+
+
