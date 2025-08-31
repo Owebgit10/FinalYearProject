@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarCreateGoal"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorPrimaryDark"
+        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+        app:navigationIcon="@drawable/ic_back_arrow" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- AI plan row -->
+            <LinearLayout
+                android:id="@+id/aiPlanRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/aiIdeaInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/title_create_goal_ai_prompt"
+                    android:inputType="textCapSentences"
+                    android:padding="12dp"
+                    android:background="@drawable/rounded_edittext"
+                    android:textColorHint="@color/gray"
+                    android:textColor="@android:color/black" />
+
+                <Button
+                    android:id="@+id/btnDevisePlan"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_devise_plan"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="@color/gold"
+                    android:textColor="@android:color/black" />
+            </LinearLayout>
+
+            <!-- AI loading row -->
+            <LinearLayout
+                android:id="@+id/aiLoadingRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="start|center_vertical"
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
+
+                <ProgressBar
+                    android:id="@+id/aiLoading"
+                    style="?android:attr/progressBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:id="@+id/aiLoadingText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/loading_generating_plan"
+                    android:textColor="@android:color/white"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+
+            <!-- Title -->
+            <EditText
+                android:id="@+id/goalTitleInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Goal Title"
+                android:inputType="textCapWords"
+                android:padding="12dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/rounded_edittext"
+                android:textColorHint="@color/gray"
+                android:textColor="@android:color/black" />
+
+            <!-- Deadline -->
+            <EditText
+                android:id="@+id/goalDeadlineInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Select deadline"
+                android:focusable="false"
+                android:drawableRight="@drawable/ic_calendar"
+                android:padding="12dp"
+                android:layout_marginTop="16dp"
+                android:background="@drawable/rounded_edittext"
+                android:textColorHint="@color/gray"
+                android:textColor="@android:color/black" />
+
+            <!-- NEW: Adjust panel (initially hidden; show after AI plan returns) -->
+            <LinearLayout
+                android:id="@+id/aiAdjustRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"
+                android:visibility="gone">
+
+                <EditText
+                    android:id="@+id/aiAdjustInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="@string/hint_adjust_plan"
+                    android:inputType="textCapSentences"
+                    android:padding="12dp"
+                    android:background="@drawable/rounded_edittext"
+                    android:textColorHint="@color/gray"
+                    android:textColor="@android:color/black" />
+
+                <Button
+                    android:id="@+id/btnApplyAdjustment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_apply_adjustment"
+                    android:layout_marginStart="8dp"
+                    android:backgroundTint="@color/gold"
+                    android:textColor="@android:color/black" />
+            </LinearLayout>
+
+            <!-- Tasks container -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tasks"
+                android:textSize="18sp"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="24dp"/>
+
+            <LinearLayout
+                android:id="@+id/taskInputContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="8dp" />
+
+            <!-- Add Task Button -->
+            <Button
+                android:id="@+id/addTaskButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add Task"
+                android:layout_gravity="end"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="@color/gold"
+                android:textColor="@android:color/black"/>
+
+            <!-- Buttons at bottom -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="24dp"
+                android:padding="8dp">
+
+                <Button
+                    android:id="@+id/btnCreateGoal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Create Goal"
+                    android:backgroundTint="@color/gold"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/btnCancelGoal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Cancel"
+                    android:backgroundTint="@color/gray"
+                    android:textColor="@android:color/white"
+                    android:layout_marginStart="16dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
