@@ -1,0 +1,477 @@
+package com.example.questapplication;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import android.app.DatePickerDialog;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.widget.*;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.*;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class EditGoalActivity extends AppCompatActivity {
+
+    private static final String TAG = "EditGoalActivity";
+
+    // ---- UI ----
+    private EditText goalTitleInput, goalDeadlineInput;
+    private LinearLayout taskInputContainer;
+    private Button addTaskButton, btnUpdateGoal, btnCancelEditGoal, deleteGoalButton;
+
+    // AI (Adjust)
+    private EditText aiAdjustInput;
+    private Button btnApplyAdjustment;
+    private LinearLayout aiAdjustRow, aiLoadingRow;
+
+    // ---- Networking (Cloud Run URLs for your functions) ----
+    private static final String ADJUST_URL = "https://ai-adjust-plan-sy2jevgguq-ew.a.run.app";
+
+    private final ExecutorService networkExecutor = Executors.newSingleThreadExecutor();
+
+    private String goalId;
+    private Goal currentGoal;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_edit_goal);
+
+        Toolbar toolbar = findViewById(R.id.toolbarEditGoal);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("Edit Goal");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(v -> finish());
+
+        // Bind core UI
+        goalTitleInput = findViewById(R.id.goalTitleInput);
+        goalDeadlineInput = findViewById(R.id.goalDeadlineInput);
+        taskInputContainer = findViewById(R.id.taskInputContainer);
+        addTaskButton = findViewById(R.id.addTaskButton);
+        btnUpdateGoal = findViewById(R.id.btnUpdateGoal);
+        btnCancelEditGoal = findViewById(R.id.btnCancelEditGoal);
+        deleteGoalButton = findViewById(R.id.deleteGoalButton);
+
+        // AI UI
+        aiAdjustRow = findViewById(R.id.aiAdjustRow);
+        aiAdjustInput = findViewById(R.id.aiAdjustInput);
+        btnApplyAdjustment = findViewById(R.id.btnApplyAdjustment);
+        aiLoadingRow = findViewById(R.id.aiLoadingRow);
+
+        // Listeners
+        goalDeadlineInput.setOnClickListener(v -> openDatePicker());
+        addTaskButton.setOnClickListener(v -> addTaskField(null));
+        btnUpdateGoal.setOnClickListener(v -> updateGoal());
+        btnCancelEditGoal.setOnClickListener(v -> finish());
+        deleteGoalButton.setOnClickListener(v -> confirmAndDeleteGoal());
+
+        // AI listener
+        btnApplyAdjustment.setOnClickListener(v -> handleApplyAdjustment());
+
+        goalId = getIntent().getStringExtra("goalId");
+        if (goalId != null) {
+            loadGoalData(goalId);
+        } else {
+            Toast.makeText(this, "Missing goal id.", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+    }
+
+    // ---------------- Date Picker ----------------
+    private void openDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog dialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            String formattedDate = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+            goalDeadlineInput.setText(coerceFutureISO(formattedDate));
+        },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+        dialog.getDatePicker().setMinDate(System.currentTimeMillis());
+        dialog.show();
+    }
+
+    // ---------------- Load Goal ----------------
+    private void loadGoalData(String goalId) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "You must be signed in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String uid = user.getUid();
+        DatabaseReference goalRef = FirebaseDatabase.getInstance()
+                .getReference("Goals")
+                .child(uid)
+                .child(goalId);
+
+        goalRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override public void onDataChange(@NonNull DataSnapshot snapshot) {
+                currentGoal = snapshot.getValue(Goal.class);
+                if (currentGoal == null) {
+                    Toast.makeText(EditGoalActivity.this, "Goal not found.", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
+
+                goalTitleInput.setText(currentGoal.getTitle());
+                goalDeadlineInput.setText(coerceFutureISO(currentGoal.getDeadline()));
+
+                taskInputContainer.removeAllViews();
+                if (currentGoal.getTasks() != null && !currentGoal.getTasks().isEmpty()) {
+                    for (Task t : currentGoal.getTasks().values()) {
+                        addTaskField(t.getTitle());
+                    }
+                } else {
+                    addTaskField(null);
+                }
+            }
+
+            @Override public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(EditGoalActivity.this, "Failed to load goal.", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
+    }
+
+    // ---------------- UI Helpers ----------------
+    private void addTaskField(@Nullable String prefillText) {
+        // Row with EditText + delete (X) button
+        LinearLayout taskRow = new LinearLayout(this);
+        taskRow.setOrientation(LinearLayout.HORIZONTAL);
+
+        EditText taskInput = new EditText(this);
+        taskInput.setHint("Task");
+        taskInput.setBackgroundResource(R.drawable.rounded_edittext);
+        taskInput.setPadding(24, 24, 24, 24);
+        taskInput.setTextColor(ContextCompat.getColor(this, android.R.color.black));
+        taskInput.setHintTextColor(ContextCompat.getColor(this, R.color.gray));
+        if (!TextUtils.isEmpty(prefillText)) taskInput.setText(prefillText);
+
+        LinearLayout.LayoutParams inputParams =
+                new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        taskInput.setLayoutParams(inputParams);
+
+        ImageButton deleteButton = new ImageButton(this);
+        deleteButton.setImageResource(R.drawable.ic_closetag);
+        deleteButton.setBackgroundColor(ContextCompat.getColor(this, android.R.color.transparent));
+        deleteButton.setOnClickListener(v -> taskInputContainer.removeView(taskRow));
+
+        taskRow.addView(taskInput);
+        taskRow.addView(deleteButton);
+
+        LinearLayout.LayoutParams rowParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        rowParams.setMargins(0, 16, 0, 0);
+        taskRow.setLayoutParams(rowParams);
+
+        taskInputContainer.addView(taskRow);
+    }
+
+    private List<String> collectCurrentTaskTexts() {
+        List<String> tasks = new ArrayList<>();
+        for (int i = 0; i < taskInputContainer.getChildCount(); i++) {
+            View row = taskInputContainer.getChildAt(i);
+            if (row instanceof LinearLayout && ((LinearLayout) row).getChildCount() > 0) {
+                View first = ((LinearLayout) row).getChildAt(0);
+                if (first instanceof EditText) {
+                    String t = ((EditText) first).getText().toString().trim();
+                    if (!t.isEmpty()) tasks.add(t);
+                }
+            }
+        }
+        return tasks;
+    }
+
+    private void setLoading(boolean isLoading) {
+        aiLoadingRow.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        btnApplyAdjustment.setEnabled(!isLoading);
+        addTaskButton.setEnabled(!isLoading);
+        btnUpdateGoal.setEnabled(!isLoading);
+        btnCancelEditGoal.setEnabled(!isLoading);
+        deleteGoalButton.setEnabled(!isLoading);
+    }
+
+    // ---------------- AI: Adjust Plan ----------------
+    private void handleApplyAdjustment() {
+        String adjust = aiAdjustInput.getText().toString().trim();
+        if (adjust.isEmpty()) {
+            Toast.makeText(this, "Tell me how to adjust (e.g., add 3 beginner tasks).", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        setLoading(true);
+
+        JSONObject body = new JSONObject();
+        try {
+            body.put("adjust", adjust);
+
+            JSONObject current = new JSONObject();
+            current.put("title", goalTitleInput.getText().toString().trim());
+            current.put("deadline", goalDeadlineInput.getText().toString().trim());
+
+            JSONArray currentTasks = new JSONArray();
+            for (String t : collectCurrentTaskTexts()) currentTasks.put(t);
+            current.put("tasks", currentTasks);
+
+            body.put("currentPlan", current);
+        } catch (JSONException ignore) {}
+
+        networkExecutor.execute(() -> {
+            try {
+                JSONObject response = postJson(ADJUST_URL, body);
+                runOnUiThread(() -> {
+                    setLoading(false);
+                    if (response == null) {
+                        Toast.makeText(this, "Couldn’t suggest changes. Try again.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    applyAdjustResponse(response);
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    setLoading(false);
+                    Toast.makeText(this, "Error applying adjustment.", Toast.LENGTH_SHORT).show();
+                });
+            }
+        });
+    }
+
+    private void applyAdjustResponse(JSONObject resp) {
+        // Expected: { addTasks?: [..], title?: "...", deadline?: "YYYY-MM-DD" }
+        JSONArray addTasks = resp.optJSONArray("addTasks");
+        String newTitle = resp.optString("title", null);
+        String newDeadline = resp.optString("deadline", null);
+
+        // Only fill title/deadline if empty (don’t overwrite user edits)
+        if (!TextUtils.isEmpty(newTitle) && TextUtils.isEmpty(goalTitleInput.getText().toString().trim())) {
+            goalTitleInput.setText(newTitle);
+        }
+        if (!TextUtils.isEmpty(newDeadline) && TextUtils.isEmpty(goalDeadlineInput.getText().toString().trim())) {
+            goalDeadlineInput.setText(coerceFutureISO(newDeadline));
+        }
+
+        if (addTasks != null && addTasks.length() > 0) {
+            int added = 0;
+            for (int i = 0; i < addTasks.length(); i++) {
+                String t = addTasks.optString(i, null);
+                if (!TextUtils.isEmpty(t)) {
+                    addTaskField(t);
+                    added++;
+                }
+            }
+            Toast.makeText(this, "Added " + added + " suggested task(s).", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "No new tasks suggested.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // ---------------- Save / Delete ----------------
+    private void updateGoal() {
+        String title = goalTitleInput.getText().toString().trim();
+        String deadline = coerceFutureISO(goalDeadlineInput.getText().toString().trim());
+
+        if (title.isEmpty() || deadline.isEmpty()) {
+            Toast.makeText(this, "Please complete all required fields.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Task> updatedTasks = new HashMap<>();
+        for (int i = 0; i < taskInputContainer.getChildCount(); i++) {
+            View row = taskInputContainer.getChildAt(i);
+            if (row instanceof LinearLayout && ((LinearLayout) row).getChildCount() > 0) {
+                View first = ((LinearLayout) row).getChildAt(0);
+                if (first instanceof EditText) {
+                    String taskText = ((EditText) first).getText().toString().trim();
+                    if (!taskText.isEmpty()) {
+                        String taskId = FirebaseDatabase.getInstance().getReference().push().getKey();
+                        updatedTasks.put(taskId, new Task(taskText, false));
+                    }
+                }
+            }
+        }
+
+        if (updatedTasks.isEmpty()) {
+            Toast.makeText(this, "Add at least one task.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (currentGoal == null) currentGoal = new Goal();
+        currentGoal.setTitle(title);
+        currentGoal.setDeadline(deadline);
+        currentGoal.setTasks(updatedTasks);
+
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "You must be signed in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String uid = user.getUid();
+        FirebaseDatabase.getInstance().getReference("Goals")
+                .child(uid)
+                .child(goalId)
+                .setValue(currentGoal)
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(this, "Goal updated successfully!", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to update goal.", Toast.LENGTH_SHORT).show());
+    }
+
+    private void confirmAndDeleteGoal() {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Goal")
+                .setMessage("Are you sure you want to delete this goal?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    if (user == null) {
+                        Toast.makeText(this, "You must be signed in.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    String uid = user.getUid();
+
+                    FirebaseDatabase.getInstance().getReference("Goals")
+                            .child(uid)
+                            .child(goalId)
+                            .removeValue()
+                            .addOnSuccessListener(unused -> {
+                                Toast.makeText(this, "Goal deleted successfully!", Toast.LENGTH_SHORT).show();
+                                finish();
+                            })
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(this, "Failed to delete goal.", Toast.LENGTH_SHORT).show());
+                })
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    // ---------------- Simple HTTP Helper ----------------
+    @SuppressWarnings("SameParameterValue")
+    private @Nullable JSONObject postJson(String urlString, JSONObject body) {
+        HttpURLConnection conn = null;
+        try {
+            URL url = new URL(urlString);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(15000);
+            conn.setReadTimeout(30000);
+            conn.setRequestMethod("POST");
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+            conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("X-Client", "Android");
+
+            byte[] out = body.toString().getBytes(StandardCharsets.UTF_8);
+            OutputStream os = conn.getOutputStream();
+            os.write(out);
+            os.flush();
+            os.close();
+
+            int code = conn.getResponseCode();
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    (code >= 200 && code < 300) ? conn.getInputStream() : conn.getErrorStream(),
+                    StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) sb.append(line);
+            br.close();
+
+            String payload = sb.toString();
+            if (code >= 200 && code < 300) {
+                if (payload.isEmpty()) return null;
+                try {
+                    return new JSONObject(payload);
+                } catch (Exception je) {
+                    Log.e(TAG, "Invalid JSON from server: " + payload, je);
+                    return null;
+                }
+            } else {
+                Log.e(TAG, "HTTP " + code + " calling " + urlString + " -> " + payload);
+                return null;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "postJson error to " + urlString, e);
+            return null;
+        } finally {
+            if (conn != null) conn.disconnect();
+        }
+    }
+
+    // ---------------- Date helpers ----------------
+    private String coerceFutureISO(String maybeIso) {
+        // Accept only yyyy-MM-dd; if invalid or past, return today + 28 days.
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        sdf.setLenient(false);
+
+        Calendar today = Calendar.getInstance();
+        zeroTime(today);
+
+        Date parsed = null;
+        if (!TextUtils.isEmpty(maybeIso)) {
+            try {
+                parsed = sdf.parse(maybeIso);
+            } catch (ParseException ignored) {}
+        }
+
+        if (parsed == null) {
+            Calendar fallback = Calendar.getInstance();
+            fallback.add(Calendar.DAY_OF_YEAR, 28);
+            zeroTime(fallback);
+            return sdf.format(fallback.getTime());
+        }
+
+        Calendar picked = Calendar.getInstance();
+        picked.setTime(parsed);
+        zeroTime(picked);
+
+        if (picked.before(today)) {
+            Calendar fallback = Calendar.getInstance();
+            fallback.add(Calendar.DAY_OF_YEAR, 28);
+            zeroTime(fallback);
+            return sdf.format(fallback.getTime());
+        }
+        return sdf.format(picked.getTime());
+    }
+
+    private void zeroTime(Calendar c) {
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+    }
+}
