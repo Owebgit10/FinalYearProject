@@ -1,0 +1,109 @@
+package com.example.questapplication;
+
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
+/**
+ * Centralized notification helper:
+ *  - COMMUNITY channel: for your existing "New Community" notifications
+ *  - NUDGE channel: for "still working?" goal nudges (used by NudgeWorker)
+ */
+public final class NotificationHelper {
+
+    // -------- Nudge (goal sessions) channel --------
+    public static final String NUDGE_CHANNEL_ID = "quest_nudges";
+    private static final String NUDGE_CHANNEL_NAME = "Goal Nudges";
+    private static final String NUDGE_CHANNEL_DESC = "Reminders about active goal sessions";
+
+    /**
+     * Back-compat alias so existing code like NudgeWorker that references CHANNEL_ID keeps working.
+     * Prefer using NUDGE_CHANNEL_ID directly in new code.
+     */
+    @Deprecated
+    public static final String CHANNEL_ID = NUDGE_CHANNEL_ID;
+
+    // Create/ensure the nudge channel (used by NudgeWorker)
+    public static void ensureNudgeChannel(Context ctx) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm != null && nm.getNotificationChannel(NUDGE_CHANNEL_ID) == null) {
+                NotificationChannel ch = new NotificationChannel(
+                        NUDGE_CHANNEL_ID,
+                        NUDGE_CHANNEL_NAME,
+                        NotificationManager.IMPORTANCE_DEFAULT
+                );
+                ch.setDescription(NUDGE_CHANNEL_DESC);
+                nm.createNotificationChannel(ch);
+            }
+        }
+    }
+
+    /** Alias kept for older calls (e.g., NudgeWorker.ensureChannel). */
+    public static void ensureChannel(Context ctx) {
+        ensureNudgeChannel(ctx);
+    }
+
+    // -------- Community channel (your existing code) --------
+    public static final String COMMUNITY_CHANNEL_ID = "new_community_channel";
+    private static final String COMMUNITY_CHANNEL_NAME = "Community Notifications";
+    private static final String COMMUNITY_CHANNEL_DESC = "Notifications for new communities you might like";
+
+    private static final int COMMUNITY_NOTIFICATION_ID = 2001;
+
+    public static void showNewCommunityNotification(Context context, String communityName, Intent intent) {
+        ensureCommunityChannel(context);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, COMMUNITY_CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_bell) // your bell icon
+                .setContentTitle("New Community You Might Like!")
+                .setContentText(communityName)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+
+        // Android 13+ runtime permission check
+        boolean hasPostNotifPerm = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+                || ActivityCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED;
+
+        if (hasPostNotifPerm && notificationManager.areNotificationsEnabled()) {
+            notificationManager.notify(COMMUNITY_NOTIFICATION_ID, builder.build());
+        }
+    }
+
+    private static void ensureCommunityChannel(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager manager = context.getSystemService(NotificationManager.class);
+            if (manager != null && manager.getNotificationChannel(COMMUNITY_CHANNEL_ID) == null) {
+                NotificationChannel channel = new NotificationChannel(
+                        COMMUNITY_CHANNEL_ID,
+                        COMMUNITY_CHANNEL_NAME,
+                        NotificationManager.IMPORTANCE_HIGH
+                );
+                channel.setDescription(COMMUNITY_CHANNEL_DESC);
+                manager.createNotificationChannel(channel);
+            }
+        }
+    }
+
+    private NotificationHelper() {}
+}
+ 
