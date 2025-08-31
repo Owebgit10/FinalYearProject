@@ -1,0 +1,24 @@
+package com.example.questapplication;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+
+public class NudgeActionReceiver extends BroadcastReceiver {
+
+    public static final String ACTION_STILL_WORKING_YES = "com.example.questapplication.action.STILL_WORKING_YES";
+    public static final String ACTION_STILL_WORKING_NO  = "com.example.questapplication.action.STILL_WORKING_NO";
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        if (intent == null || intent.getAction() == null) return;
+        String action = intent.getAction();
+
+        if (ACTION_STILL_WORKING_NO.equals(action)) {
+            // User said "No" -> stop the session now
+            SessionManager.end(context);
+        }
+        // If YES: do nothing; session continues.
+    }
+}
+
