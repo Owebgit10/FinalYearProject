@@ -1,0 +1,20 @@
+ private void promptNudgeDelay() {
+        final String[] labels = new String[]{
+                getString(R.string.nudge_15s_demo),
+                "15 minutes", "30 minutes", "45 minutes", "1 hour", "2 hours"
+        };
+        final long[] values = new long[]{15, 15, 30, 45, 60, 120};
+        final java.util.concurrent.TimeUnit[] units = new java.util.concurrent.TimeUnit[]{
+                java.util.concurrent.TimeUnit.SECONDS,
+                java.util.concurrent.TimeUnit.MINUTES, java.util.concurrent.TimeUnit.MINUTES,
+                java.util.concurrent.TimeUnit.MINUTES, java.util.concurrent.TimeUnit.MINUTES,
+                java.util.concurrent.TimeUnit.MINUTES
+        };
+
+        new android.app.AlertDialog.Builder(this)
+                .setTitle(R.string.nudge_picker_title) // “Select a time to remind you”
+                // NOTE: no .setMessage(...) — title + items only
+                .setItems(labels, (d, which) -> scheduleNudge(values[which], units[which]))
+                .setNegativeButton(R.string.skip, null)
+                .show();
+    }
